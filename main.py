@@ -44,6 +44,7 @@ error_directory = args.error if args.error else f'{output_directory}/error'
 # Create directories if they don't exist
 os.makedirs(output_directory, exist_ok=True)
 os.makedirs(error_directory, exist_ok=True)
+os.makedirs(nsfw_directory, exist_ok=True)
 
 # Function to process each image and copy if necessary
 def process_image(image_path):
