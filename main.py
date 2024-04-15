@@ -31,28 +31,24 @@ def process_image(image_path):
             logits = outputs.logits
         predicted_label = logits.argmax(-1).item()
         label = model.config.id2label[predicted_label]
-
-        # Copy NSFW images to the nsfw_directory
         if label.lower() == 'nsfw':
             shutil.copy(image_path, nsfw_directory)
-        return label
+        return image_path, label
     except:
-        # Copy errored images to the error_directory
         shutil.copy(image_path, error_directory)
-        return "Error - Could not process image"
+        return image_path, 'error'
 
-# List of files to process
+def process_images(image_paths):
+    with ThreadPoolExecutor(max_workers=None) as executor:
+        results = list(tqdm(executor.map(process_image, image_paths), total=len(image_paths)))
+    return results
+
+# Collect all image paths
 image_files = [
     os.path.join(root, file)
-    for root, dirs, files in os.walk(base_directory)
+    for root, _, files in os.walk(base_directory)
     for file in files
     if file.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif'))
 ]
 
-# Process the images with tqdm progress bar
-for image_path in tqdm(image_files, desc="Processing Images"):
-    try:
-        label = process_image(image_path)
-    except Exception as e:
-        print(f"Error processing image {image_path}: {str(e)}")
-        continue
+results = process_images(image_files)
