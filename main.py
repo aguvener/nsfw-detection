@@ -3,6 +3,8 @@ This script is used to process images in a directory and classify them as NSFW o
 The script uses a pre-trained model to classify images and copy them to the output directory if they are NSFW.
 If an error occurs while processing an image, the image is copied to the error directory.
 
+Model: Falconsai/nsfw_image_detection
+
 Usage: python main.py -I <input_directory> -O <output_directory> -E <error_directory>
 
 Arguments:
@@ -24,11 +26,10 @@ import argparse
 model = AutoModelForImageClassification.from_pretrained("Falconsai/nsfw_image_detection")
 processor = ViTImageProcessor.from_pretrained('Falconsai/nsfw_image_detection')
 model.eval()
-device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu'))
 model.to(device)
 
 # Get directories from command line arguments
-# Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', '--input', help='Input directory', required=True)
 parser.add_argument('-O', '--output', help='Output directory')
